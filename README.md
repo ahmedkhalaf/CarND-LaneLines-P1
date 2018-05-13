@@ -41,12 +41,12 @@ Finding the good balance depends on how the next steps can tolerate noise:
 * However, it can also remove useful features like washed out lane lines (really important for challenge.mp4)
 
 ![alt text][image1]
+![alt text][image2]
 
 
 ### B. Detecting Lanes
 #### B.1 Edge detection and Masking
 Edge detection is done using canny function, threshold 50-150 works in most cases where lanes are washed (like in challenge.mp4), however, this introduces more noise.
-![alt text][image2]
 
 Therefore, Choosing a mask below horizon line plays an important role in removing a lot of objects near the perspective convergence point.
 
