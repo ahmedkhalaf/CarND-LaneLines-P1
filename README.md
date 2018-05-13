@@ -22,6 +22,7 @@ The goals / steps of this project are the following:
 [image2]: ./writeup_imgs/challenge_noise.png "Noise resulting in wrong detection"
 [image3]: ./writeup_imgs/Horizon_Noise.png "Noise near horizon"
 [image4]: ./writeup_imgs/Lines_Detected.png "Lane lines deteced"
+[image5]: ./writeup_imgs/vlcsnap-2018-05-12-20h42m38s53.png "Visual guides"
 
 ---
 
@@ -71,9 +72,9 @@ When these are identified, intersection points to horizontal upper and lower lin
 
 I also modified default thickness of the line to 12 pixels.
 
-If you'd like to include images to show how the pipeline works, here is how to include an image: 
+An example is shown below, it shows that noise resulting from tree shadows is eliminated
 
-![alt text][image1]
+![alt text][image5]
 
 
 ### 2. Identify potential shortcomings with your current pipeline
