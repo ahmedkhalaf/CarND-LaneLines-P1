@@ -77,7 +77,7 @@ An example is shown below, it shows that noise resulting from tree shadows is el
 ![alt text][image5]
 
 
-### 2. Identify potential shortcomings with your current pipeline
+### 2. Potential areas of improvement in current pipeline implementation
 
 The current implementation assumes Horizon is near the middle of captured image, this will probably not work in Pennsylvania for example where roads are not horizontal and horizon will change significantly.
 
@@ -89,7 +89,7 @@ Stateless:
 * Each frame is interpreted without making use of information from previous frames.
 * Unable removing static noise (like in challenge.mp4)
 
-### 3. Suggest possible improvements to your pipeline
+### 3. Furture work
 
 Horizon could be detected dynamically by attempting to find horizontal line that is near to significant change in color compared to upper part of the image.
 
