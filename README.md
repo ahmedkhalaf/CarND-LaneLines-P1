@@ -1,56 +1,105 @@
 # **Finding Lane Lines on the Road** 
-[![Udacity - Self-Driving Car NanoDegree](https://s3.amazonaws.com/udacity-sdc/github/shield-carnd.svg)](http://www.udacity.com/drive)
 
-<img src="examples/laneLines_thirdPass.jpg" width="480" alt="Combined Image" />
+## Writeup for Udacity Self-Driving Car Nano-degree Project1
 
-Overview
+### (CarND-LaneLines-P1)
+
+### By: Ahmed Khalaf
+
+
 ---
 
-When we drive, we use our eyes to decide where to go.  The lines on the road that show us where the lanes are act as our constant reference for where to steer the vehicle.  Naturally, one of the first things we would like to do in developing a self-driving car is to automatically detect lane lines using an algorithm.
+**Finding Lane Lines on the Road**
 
-In this project you will detect lane lines in images using Python and OpenCV.  OpenCV means "Open-Source Computer Vision", which is a package that has many useful tools for analyzing images.  
-
-To complete the project, two files will be submitted: a file containing project code and a file containing a brief write up explaining your solution. We have included template files to be used both for the [code](https://github.com/udacity/CarND-LaneLines-P1/blob/master/P1.ipynb) and the [writeup](https://github.com/udacity/CarND-LaneLines-P1/blob/master/writeup_template.md).The code file is called P1.ipynb and the writeup template is writeup_template.md 
-
-To meet specifications in the project, take a look at the requirements in the [project rubric](https://review.udacity.com/#!/rubrics/322/view)
+The goals / steps of this project are the following:
+* Make a pipeline that finds lane lines on the road
+* Reflect on your work in a written report
 
 
-Creating a Great Writeup
----
-For this project, a great writeup should provide a detailed response to the "Reflection" section of the [project rubric](https://review.udacity.com/#!/rubrics/322/view). There are three parts to the reflection:
+[//]: # (Image References)
 
-1. Describe the pipeline
+[image1]: ./writeup_imgs/challenge_over_filtered.png "Noise filter removed features"
+[image2]: ./writeup_imgs/challenge_noise.png "Noise resulting in wrong detection"
+[image3]: ./writeup_imgs/Horizon_Noise.png "Noise near horizon"
+[image4]: ./writeup_imgs/Lines_Detected.png "Lane lines deteced"
 
-2. Identify any shortcomings
-
-3. Suggest possible improvements
-
-We encourage using images in your writeup to demonstrate how your pipeline works.  
-
-All that said, please be concise!  We're not looking for you to write a book here: just a brief description.
-
-You're not required to use markdown for your writeup.  If you use another method please just submit a pdf of your writeup. Here is a link to a [writeup template file](https://github.com/udacity/CarND-LaneLines-P1/blob/master/writeup_template.md). 
-
-
-The Project
 ---
 
-## If you have already installed the [CarND Term1 Starter Kit](https://github.com/udacity/CarND-Term1-Starter-Kit/blob/master/README.md) you should be good to go!   If not, you should install the starter kit to get started on this project. ##
+### Reflection
 
-**Step 1:** Set up the [CarND Term1 Starter Kit](https://classroom.udacity.com/nanodegrees/nd013/parts/fbf77062-5703-404e-b60c-95b78b2f3f9e/modules/83ec35ee-1e02-48a5-bdb7-d244bd47c2dc/lessons/8c82408b-a217-4d09-b81d-1bda4c6380ef/concepts/4f1870e0-3849-43e4-b670-12e6f2d4b7a7) if you haven't already.
+The pipeline consisted of 6 steps, split into three phases.
 
-**Step 2:** Open the code in a Jupyter Notebook
+### A. Pre-processing
+#### A.1 Conversion to Grayscale
 
-You will complete the project code in a Jupyter notebook.  If you are unfamiliar with Jupyter Notebooks, check out <A HREF="https://www.packtpub.com/books/content/basics-jupyter-notebook-and-python" target="_blank">Cyrille Rossant's Basics of Jupyter Notebook and Python</A> to get started.
 
-Jupyter is an Ipython notebook where you can run blocks of code and see results interactively.  All the code for this project is contained in a Jupyter notebook. To start Jupyter in your browser, use terminal to navigate to your project directory and then run the following command at the terminal prompt (be sure you've activated your Python 3 carnd-term1 environment as described in the [CarND Term1 Starter Kit](https://github.com/udacity/CarND-Term1-Starter-Kit/blob/master/README.md) installation instructions!):
+#### A.2 Noise filtering (using Gaussian Smoothing)
 
-`> jupyter notebook`
+Finding the good balance depends on how the next steps can tolerate noise:
+* Removing lines resulting from tree shadows, cracks in the ground ..etc
+* However, it can also remove useful features like washed out lane lines (really important for challenge.mp4)
 
-A browser window will appear showing the contents of the current directory.  Click on the file called "P1.ipynb".  Another browser window will appear displaying the notebook.  Follow the instructions in the notebook to complete the project.  
+![alt text][image1]
 
-**Step 3:** Complete the project and submit both the Ipython notebook and the project writeup
 
-## How to write a README
-A well written README file can enhance your project and portfolio.  Develop your abilities to create professional README files by completing [this free course](https://www.udacity.com/course/writing-readmes--ud777).
+### B. Detecting Lanes
+#### B.1 Edge detection and Masking
+Edge detection is done using canny function, threshold 50-150 works in most cases where lanes are washed (like in challenge.mp4), however, this introduces more noise.
+![alt text][image2]
 
+Therefore, Choosing a mask below horizon line plays an important role in removing a lot of objects near the perspective convergence point.
+
+![alt text][image3]
+
+The chosen mask represents a trapezoid which high side is not wide and is located below horizon.
+
+#### B.2 Line detection
+Detecting lines is done in relatively high-resolution hough space:
+* rho = 2 # distance resolution in pixels of the Hough grid
+* theta = np.pi/180 # angular resolution in radians of the Hough grid
+
+Looking for longer lines by increasing threshold and at the same time tolerating gaps helps accurately detecting lanes, since these two features distinguish lanes after edge-detection phase:
+* threshold = 80     # minimum number of votes (intersections in Hough grid cell)
+* min_line_len = 20 #minimum number of pixels making up a line
+* max_line_gap = 50    # maximum gap in pixels between connectable line segments
+
+![alt text][image4]
+
+### C. Visual Annotation
+In order to draw a single line on the left and right lanes, I modified the draw_lines() function by attempting to find two lines with max slope (closest to the car's trajectory which is usually straight line).
+When these are identified, intersection points to horizontal upper and lower lines of the interest area are calculated based on equation of the identified lines.
+
+I also modified default thickness of the line to 12 pixels.
+
+If you'd like to include images to show how the pipeline works, here is how to include an image: 
+
+![alt text][image1]
+
+
+### 2. Identify potential shortcomings with your current pipeline
+
+The current implementation assumes Horizon is near the middle of captured image, this will probably not work in Pennsylvania for example where roads are not horizontal and horizon will change significantly.
+
+In addition, the implementation assumes Car is within lane .. this will not be useful in situations where the car departures the lane
+
+It's also assumed that the lanes are relatively straight .. which isn't expected in situation where road is curved like highway exits and parking buildings.
+
+Stateless:
+* Each frame is interpreted without making use of information from previous frames.
+* Unable removing static noise (like in challenge.mp4)
+
+### 3. Suggest possible improvements to your pipeline
+
+Horizon could be detected dynamically by attempting to find horizontal line that is near to significant change in color compared to upper part of the image.
+
+Performance can be enhanced by removing part of the image which doesn't need to be processed.
+
+To make use of lanes detected in previous frames to overcome noise or lanes not being visible on the road in addition to removing static noise.
+
+## Final Deliverables:
+https://github.com/ahmedkhalaf/CarND-LaneLines-P1/blob/master/test_videos_output_final/solidYellowLeft.mp4
+https://github.com/ahmedkhalaf/CarND-LaneLines-P1/blob/master/test_videos_output_final/solidWhiteRight.mp4
+https://github.com/ahmedkhalaf/CarND-LaneLines-P1/blob/master/test_videos_output_final/challenge.mp4
+
+## Intermediate Deliverables (same videos with line-segments)
+https://github.com/ahmedkhalaf/CarND-LaneLines-P1/blob/master/test_videos_output_line-segments/
