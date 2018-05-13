@@ -18,7 +18,10 @@ The goals / steps of this project are the following:
 
 [//]: # (Image References)
 
-[image1]: ./examples/grayscale.jpg "Grayscale"
+[image1]: ./writeup_imgs/challenge_over_filtered.png "Noise filter removed features"
+[image2]: ./writeup_imgs/challenge_noise.png "Noise resulting in wrong detection"
+[image3]: ./writeup_imgs/Horizon_Noise.png "Noise near horizon"
+[image4]: ./writeup_imgs/Lines_Detected.png "Lane lines deteced"
 
 ---
 
@@ -36,11 +39,17 @@ Finding the good balance depends on how the next steps can tolerate noise:
 * Removing lines resulting from tree shadows, cracks in the ground ..etc
 * However, it can also remove useful features like washed out lane lines (really important for challenge.mp4)
 
+![alt text][image1]
+
+
 ### B. Detecting Lanes
 #### B.1 Edge detection and Masking
 Edge detection is done using canny function, threshold 50-150 works in most cases where lanes are washed (like in challenge.mp4), however, this introduces more noise.
+![alt text][image2]
 
 Therefore, Choosing a mask below horizon line plays an important role in removing a lot of objects near the perspective convergence point.
+
+![alt text][image3]
 
 The chosen mask represents a trapezoid which high side is not wide and is located below horizon.
 
@@ -53,6 +62,8 @@ Looking for longer lines by increasing threshold and at the same time tolerating
 * threshold = 80     # minimum number of votes (intersections in Hough grid cell)
 * min_line_len = 20 #minimum number of pixels making up a line
 * max_line_gap = 50    # maximum gap in pixels between connectable line segments
+
+![alt text][image4]
 
 ### C. Visual Annotation
 In order to draw a single line on the left and right lanes, I modified the draw_lines() function by attempting to find two lines with max slope (closest to the car's trajectory which is usually straight line).
@@ -84,3 +95,11 @@ Horizon could be detected dynamically by attempting to find horizontal line that
 Performance can be enhanced by removing part of the image which doesn't need to be processed.
 
 To make use of lanes detected in previous frames to overcome noise or lanes not being visible on the road in addition to removing static noise.
+
+## Final Deliverables:
+https://github.com/ahmedkhalaf/CarND-LaneLines-P1/blob/master/test_videos_output_final/solidYellowLeft.mp4
+https://github.com/ahmedkhalaf/CarND-LaneLines-P1/blob/master/test_videos_output_final/solidWhiteRight.mp4
+https://github.com/ahmedkhalaf/CarND-LaneLines-P1/blob/master/test_videos_output_final/challenge.mp4
+
+## Intermediate Deliverables (same videos with line-segments)
+https://github.com/ahmedkhalaf/CarND-LaneLines-P1/blob/master/test_videos_output_line-segments/
